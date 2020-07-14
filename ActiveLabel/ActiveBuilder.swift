@@ -41,7 +41,6 @@ struct ActiveBuilder {
     }
 
     static func createElements(from text: String, for type: ActiveType, range: NSRange, minLength: Int = 2, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
-
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
@@ -57,7 +56,7 @@ struct ActiveBuilder {
         return elements
     }
 
-    static func createMentionElements(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
+    static func createElementsIgnoringFirstCharacter(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
@@ -80,36 +79,22 @@ struct ActiveBuilder {
         return elements
     }
 
-    static func createHashtagElements(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?, maximumLength: Int?, maximumCount: Int?) -> [ElementTuple] {
+    static func createHashtagElements(from text: String, for type: ActiveType, hashtags: [String], range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
-        var index: Int = 1
 
         for match in matches where match.range.length > 1 {
             var word = nsstring.substring(with: match.range).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
 
-            if let maxCount = maximumCount, index > maxCount {
-                continue
-            }
-
-            if let maxLength = maximumLength, (word.count - "#".count) > maxLength {
-                continue
-            }
-
             if word.hasPrefix("#") {
                 word.remove(at: word.startIndex)
             }
-            else if word.hasPrefix("#") {
-                word.remove(at: word.startIndex)
-            }
 
-            if filterPredicate?(word) ?? true {
-                let element = ActiveElement.create(with: type, text: word)
+            if filterPredicate?(word) ?? true, let hashtag = hashtags.filter({ $0.hasPrefix(word) }).first {
+                let element = ActiveElement.create(with: type, text: hashtag)
                 elements.append((match.range, element, type))
             }
-
-            index += 1
         }
 
         return elements
