@@ -20,16 +20,37 @@ class ViewController: UIViewController {
         let customType2 = ActiveType.custom(pattern: "\\sit\\b") //Looks for "it"
         let customType3 = ActiveType.custom(pattern: "\\ssupports\\b") //Looks for "supports"
 
+        label.enabledTypes = [.hashtag, .mention, .url]
         label.enabledTypes.append(customType)
         label.enabledTypes.append(customType2)
         label.enabledTypes.append(customType3)
 
         label.urlMaximumLength = 31
+        label.hashtagMaximumLength = 85
+        label.hashtagMaximumCount = 30
 
         label.customize { label in
-            label.text = "This is a post with #multiple #hashtags and a @userhandle. Links are also supported like" +
-            " this one: http://optonaut.co. Now it also supports custom patterns -> are\n\n" +
-                "Let's trim a long link: \nhttps://twitter.com/twicket_app/status/649678392372121601"
+            label.text = """
+            #1
+            #12345678901234567890123456789012345678901234567890123456789012345678901234567890123456
+            #1234567890123456789012345678901234567890123456789012345678901234567890123456789012345
+            #123456789012345678901234567890123456789012345678901234567890123456789012345678901234
+            
+            #some@mention ##some@mention #https://www.google.com
+            .#somehashtag #. #somehashtag.
+            #some&#mention
+            #あいうえお
+            #あいうえお#あいうえお
+            
+            #@ #% #* #+ #~ #! ## #$ #^ #& #( #) #{ #} #[ #] #; #' #: #" #? #/
+            
+            #1 #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #18 #19 #20 #21 #22 #23 #24 #25 #26 #27 #28 #29 #30 #31 #32 #33 #34 #35 #36 #37 #38 #39 #40 #41 #42 #43
+            
+            @mention @mention
+            
+            https://www.google.com
+            
+            """
             label.numberOfLines = 0
             label.lineSpacing = 4
             
@@ -66,7 +87,7 @@ class ViewController: UIViewController {
             label.handleCustomTap(for: customType3) { self.alert("Custom type", message: $0) }
         }
 
-        label.frame = CGRect(x: 20, y: 40, width: view.frame.width - 40, height: 300)
+        label.frame = CGRect(x: 20, y: 40, width: view.frame.width - 40, height: 900)
         view.addSubview(label)
         
         

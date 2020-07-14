@@ -25,6 +25,9 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
     
     open var urlMaximumLength: Int?
     
+    open var hashtagMaximumLength: Int?
+    open var hashtagMaximumCount: Int?
+    
     open var configureLinkAttribute: ConfigureLinkAttribute?
     
     @IBInspectable open var mentionColor: UIColor = .blue {
@@ -355,13 +358,37 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
         
         for type in enabledTypes where type != .url {
             var filter: ((String) -> Bool)? = nil
-            if type == .mention {
+            switch type {
+            case .mention:
                 filter = mentionFilterPredicate
-            } else if type == .hashtag {
+                let elements = ActiveBuilder.createMentionElements(from: textString,
+                                                                   for: type,
+                                                                   range: textRange,
+                                                                   filterPredicate: filter)
+                activeElements[type] = elements
+            case .hashtag:
                 filter = hashtagFilterPredicate
+                let elements = ActiveBuilder.createHashtagElements(from: textString,
+                                                                   for: type,
+                                                                   range: textRange,
+                                                                   filterPredicate: filter,
+                                                                   maximumLength: hashtagMaximumLength,
+                                                                   maximumCount: hashtagMaximumCount)
+                activeElements[type] = elements
+            case .custom:
+                let elements = ActiveBuilder.createElements(from: textString,
+                                                            for: type,
+                                                            range: textRange,
+                                                            minLength: 1,
+                                                            filterPredicate: filter)
+                activeElements[type] = elements
+            case .url:
+                let elements = ActiveBuilder.createElements(from: textString,
+                                                            for: type,
+                                                            range: textRange,
+                                                            filterPredicate: filter)
+                activeElements[type] = elements
             }
-            let hashtagElements = ActiveBuilder.createElements(type: type, from: textString, range: textRange, filterPredicate: filter)
-            activeElements[type] = hashtagElements
         }
         
         return textString

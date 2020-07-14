@@ -12,17 +12,6 @@ typealias ActiveFilterPredicate = ((String) -> Bool)
 
 struct ActiveBuilder {
 
-    static func createElements(type: ActiveType, from text: String, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
-        switch type {
-        case .mention, .hashtag:
-            return createElementsIgnoringFirstCharacter(from: text, for: type, range: range, filterPredicate: filterPredicate)
-        case .url:
-            return createElements(from: text, for: type, range: range, filterPredicate: filterPredicate)
-        case .custom:
-            return createElements(from: text, for: type, range: range, minLength: 1, filterPredicate: filterPredicate)
-        }
-    }
-
     static func createURLElements(from text: String, range: NSRange, maximumLength: Int?) -> ([ElementTuple], String) {
         let type = ActiveType.url
         var text = text
@@ -51,11 +40,7 @@ struct ActiveBuilder {
         return (elements, text)
     }
 
-    private static func createElements(from text: String,
-                                            for type: ActiveType,
-                                                range: NSRange,
-                                                minLength: Int = 2,
-                                                filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
+    static func createElements(from text: String, for type: ActiveType, range: NSRange, minLength: Int = 2, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
 
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
@@ -72,10 +57,7 @@ struct ActiveBuilder {
         return elements
     }
 
-    private static func createElementsIgnoringFirstCharacter(from text: String,
-                                                                  for type: ActiveType,
-                                                                      range: NSRange,
-                                                                      filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
+    static func createMentionElements(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
@@ -95,6 +77,41 @@ struct ActiveBuilder {
                 elements.append((match.range, element, type))
             }
         }
+        return elements
+    }
+
+    static func createHashtagElements(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?, maximumLength: Int?, maximumCount: Int?) -> [ElementTuple] {
+        let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
+        let nsstring = text as NSString
+        var elements: [ElementTuple] = []
+        var index: Int = 1
+
+        for match in matches where match.range.length > 1 {
+            var word = nsstring.substring(with: match.range).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+
+            if let maxCount = maximumCount, index > maxCount {
+                continue
+            }
+
+            if let maxLength = maximumLength, (word.count - "#".count) > maxLength {
+                continue
+            }
+
+            if word.hasPrefix("#") {
+                word.remove(at: word.startIndex)
+            }
+            else if word.hasPrefix("#") {
+                word.remove(at: word.startIndex)
+            }
+
+            if filterPredicate?(word) ?? true {
+                let element = ActiveElement.create(with: type, text: word)
+                elements.append((match.range, element, type))
+            }
+
+            index += 1
+        }
+
         return elements
     }
 }
