@@ -91,9 +91,31 @@ struct ActiveBuilder {
                 word.remove(at: word.startIndex)
             }
 
-            if filterPredicate?(word) ?? true, let hashtag = hashtags.filter({ $0.hasPrefix(word) }).first {
-                let element = ActiveElement.create(with: type, text: hashtag)
-                elements.append((match.range, element, type))
+            if filterPredicate?(word) ?? true {
+                if let index = hashtags.firstIndex(of: word) {
+                    let hashtag = hashtags[index]
+                    let element = ActiveElement.create(with: type, text: hashtag)
+                    elements.append((match.range, element, type))
+                    if let hashtag = hashtags.filter({ $0.hasPrefix(word) }).first {
+                        let element = ActiveElement.create(with: type, text: hashtag)
+                        elements.append((match.range, element, type))
+                    }
+                } else {
+                    var string: String = ""
+                    var words: [String] = []
+                    for character in word {
+                        string += character.description
+                        if let index = hashtags.firstIndex(of: string) {
+                            words.append(hashtags[index])
+                        } else {
+                            continue
+                        }
+                    }
+                    if !words.isEmpty, let text = words.last {
+                        let element = ActiveElement.create(with: type, text: text)
+                        elements.append((match.range, element, type))
+                    }
+                }
             }
         }
 
