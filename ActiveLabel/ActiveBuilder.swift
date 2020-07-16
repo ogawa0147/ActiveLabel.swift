@@ -71,6 +71,10 @@ struct ActiveBuilder {
                 word.remove(at: word.startIndex)
             }
 
+            if word.hasPrefix("https") || word.hasPrefix("http") {
+                continue
+            }
+
             if filterPredicate?(word) ?? true {
                 let element = ActiveElement.create(with: type, text: word)
                 elements.append((match.range, element, type))
@@ -89,6 +93,10 @@ struct ActiveBuilder {
 
             if word.hasPrefix("#") {
                 word.remove(at: word.startIndex)
+            }
+
+            if word.hasPrefix("https") || word.hasPrefix("http") {
+                continue
             }
 
             if filterPredicate?(word) ?? true {
