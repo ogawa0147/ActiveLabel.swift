@@ -105,20 +105,23 @@ struct ActiveBuilder {
                     let element = ActiveElement.create(with: type, text: text)
                     elements.append((match.range, element, type))
                 } else {
-                    var string: String = ""
-                    var words: [String] = []
-                    for character in word {
-                        string += character.description
-                        if let index = hashtags.firstIndex(of: string) {
-                            words.append(hashtags[index])
-                        } else {
-                            continue
+                    var text: String {
+                        var pool: String = ""
+                        var result: String = ""
+                        for character in word {
+                            pool += character.description
+                            if let index = hashtags.firstIndex(of: pool) {
+                                result = hashtags[index]
+                            } else {
+                                continue
+                            }
                         }
+                        return result
                     }
-                    if !words.isEmpty, let word = words.last, let index = hashtags.firstIndex(of: word) {
-                        let text = hashtags[index]
+                    if !text.isEmpty {
                         let element = ActiveElement.create(with: type, text: text)
-                        elements.append((match.range, element, type))
+                        let range = NSRange(location: match.range.location, length: match.range.length - word[text.endIndex...].count)
+                        elements.append((range, element, type))
                     }
                 }
             }
