@@ -25,8 +25,7 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
     
     open var urlMaximumLength: Int?
     
-    open var hashtagMaximumLength: Int?
-    open var hashtagMaximumCount: Int?
+    open var availableHashtags: [String]?
     
     open var configureLinkAttribute: ConfigureLinkAttribute?
     
@@ -229,7 +228,7 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
             selectedElement = nil
         case .stationary:
             break
-        @unknown default:
+        default:
             break
         }
         
@@ -361,32 +360,23 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
             switch type {
             case .mention:
                 filter = mentionFilterPredicate
-                let elements = ActiveBuilder.createMentionElements(from: textString,
-                                                                   for: type,
-                                                                   range: textRange,
-                                                                   filterPredicate: filter)
+                let elements = ActiveBuilder.createElementsIgnoringFirstCharacter(from: textString, for: type, range: textRange, filterPredicate: filter)
                 activeElements[type] = elements
             case .hashtag:
-                filter = hashtagFilterPredicate
-                let elements = ActiveBuilder.createHashtagElements(from: textString,
-                                                                   for: type,
-                                                                   range: textRange,
-                                                                   filterPredicate: filter,
-                                                                   maximumLength: hashtagMaximumLength,
-                                                                   maximumCount: hashtagMaximumCount)
-                activeElements[type] = elements
+                if let availableHashtags = availableHashtags, !availableHashtags.isEmpty {
+                    filter = hashtagFilterPredicate
+                    let elements = ActiveBuilder.createHashtagElements(from: textString, for: type, hashtags: availableHashtags, range: textRange, filterPredicate: filter)
+                    activeElements[type] = elements
+                } else {
+                    filter = hashtagFilterPredicate
+                    let elements = ActiveBuilder.createElementsIgnoringFirstCharacter(from: textString, for: type, range: textRange, filterPredicate: filter)
+                    activeElements[type] = elements
+                }
             case .custom:
-                let elements = ActiveBuilder.createElements(from: textString,
-                                                            for: type,
-                                                            range: textRange,
-                                                            minLength: 1,
-                                                            filterPredicate: filter)
+                let elements = ActiveBuilder.createElements(from: textString, for: type, range: textRange, minLength: 1, filterPredicate: filter)
                 activeElements[type] = elements
             case .url:
-                let elements = ActiveBuilder.createElements(from: textString,
-                                                            for: type,
-                                                            range: textRange,
-                                                            filterPredicate: filter)
+                let elements = ActiveBuilder.createElements(from: textString, for: type, range: textRange, filterPredicate: filter)
                 activeElements[type] = elements
             }
         }

@@ -41,7 +41,6 @@ struct ActiveBuilder {
     }
 
     static func createElements(from text: String, for type: ActiveType, range: NSRange, minLength: Int = 2, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
-
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
@@ -57,12 +56,12 @@ struct ActiveBuilder {
         return elements
     }
 
-    static func createMentionElements(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
+    static func createElementsIgnoringFirstCharacter(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
 
-        for match in matches where match.range.length > 2 {
+        for match in matches where match.range.length > 1 {
             let range = NSRange(location: match.range.location + 1, length: match.range.length - 1)
             var word = nsstring.substring(with: range)
             if word.hasPrefix("@") {
@@ -70,6 +69,10 @@ struct ActiveBuilder {
             }
             else if word.hasPrefix("#") {
                 word.remove(at: word.startIndex)
+            }
+
+            if word.hasPrefix("https") || word.hasPrefix("http") {
+                continue
             }
 
             if filterPredicate?(word) ?? true {
@@ -80,36 +83,48 @@ struct ActiveBuilder {
         return elements
     }
 
-    static func createHashtagElements(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?, maximumLength: Int?, maximumCount: Int?) -> [ElementTuple] {
+    static func createHashtagElements(from text: String, for type: ActiveType, hashtags: [String], range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
-        var index: Int = 1
 
         for match in matches where match.range.length > 1 {
             var word = nsstring.substring(with: match.range).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
 
-            if let maxCount = maximumCount, index > maxCount {
-                continue
-            }
-
-            if let maxLength = maximumLength, (word.count - "#".count) > maxLength {
-                continue
-            }
-
             if word.hasPrefix("#") {
                 word.remove(at: word.startIndex)
             }
-            else if word.hasPrefix("#") {
-                word.remove(at: word.startIndex)
+
+            if word.hasPrefix("https") || word.hasPrefix("http") {
+                continue
             }
 
             if filterPredicate?(word) ?? true {
-                let element = ActiveElement.create(with: type, text: word)
-                elements.append((match.range, element, type))
+                if let index = hashtags.firstIndex(of: word) {
+                    let text = hashtags[index]
+                    let element = ActiveElement.create(with: type, text: text)
+                    elements.append((match.range, element, type))
+                } else {
+                    var text: String {
+                        var pool: String = ""
+                        var result: String = ""
+                        for character in word {
+                            pool += character.description
+                            if let index = hashtags.firstIndex(of: pool) {
+                                result = hashtags[index]
+                            } else {
+                                continue
+                            }
+                        }
+                        return result
+                    }
+                    if !text.isEmpty {
+                        let element = ActiveElement.create(with: type, text: text)
+                        let range = NSRange(location: match.range.location, length: match.range.length - word[text.endIndex...].count)
+                        elements.append((range, element, type))
+                    }
+                }
             }
-
-            index += 1
         }
 
         return elements
