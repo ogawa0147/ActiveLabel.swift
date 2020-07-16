@@ -56,7 +56,7 @@ struct ActiveBuilder {
         return elements
     }
 
-    static func createElementsIgnoringFirstCharacter(from text: String, for type: ActiveType, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
+    static func createElementsIgnoringFirstCharacter(from text: String, for type: ActiveType, maximumLength: Int? = nil, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
@@ -72,6 +72,10 @@ struct ActiveBuilder {
             }
 
             if word.hasPrefix("https") || word.hasPrefix("http") {
+                continue
+            }
+
+            if let maxLength = maximumLength, word.count > maxLength {
                 continue
             }
 

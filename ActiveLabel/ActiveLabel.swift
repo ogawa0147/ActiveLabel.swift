@@ -370,7 +370,7 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
                     activeElements[type] = elements
                 } else {
                     filter = hashtagFilterPredicate
-                    let elements = ActiveBuilder.createElementsIgnoringFirstCharacter(from: textString, for: type, range: textRange, filterPredicate: filter)
+                    let elements = ActiveBuilder.createElementsIgnoringFirstCharacter(from: textString, for: type, maximumLength: hashtagMaximumLength, range: textRange, filterPredicate: filter)
                     activeElements[type] = elements
                 }
             case .custom:
