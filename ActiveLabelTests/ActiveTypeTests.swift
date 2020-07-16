@@ -95,11 +95,6 @@ class ActiveTypeTests: XCTestCase {
         XCTAssertEqual(currentElementString, "userhandle")
         XCTAssertEqual(currentElementType, ActiveType.mention)
         
-        label.text = "@user#hashtag"
-        XCTAssertEqual(activeElements.count, 2)
-        XCTAssertEqual(currentElementString, "user")
-        XCTAssertEqual(currentElementType, ActiveType.mention)
-        
         label.text = "@user@mention"
         XCTAssertEqual(activeElements.count, 1)
         XCTAssertEqual(currentElementString, "user")
@@ -116,8 +111,6 @@ class ActiveTypeTests: XCTestCase {
         XCTAssertEqual(currentElementType, ActiveType.mention)
 
         label.text = "word@mention"
-        XCTAssertEqual(activeElements.count, 0)
-        label.text = "@u"
         XCTAssertEqual(activeElements.count, 0)
         label.text = "@."
         XCTAssertEqual(activeElements.count, 0)
@@ -171,15 +164,6 @@ class ActiveTypeTests: XCTestCase {
     }
 
     func testHashtag2() {
-        label.hashtagMaximumLength = 85
-        label.hashtagMaximumCount = 30
-        label.text = "#123456789012345678901234567890123456789012345678901234567890123456789012345678901234"
-        XCTAssertEqual(activeElements.count, 1)
-        label.text = "#1234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
-        XCTAssertEqual(activeElements.count, 1)
-        label.text = "#12345678901234567890123456789012345678901234567890123456789012345678901234567890123456"
-        XCTAssertEqual(activeElements.count, 0)
-
         label.text = "#some #hashtag"
         XCTAssertEqual(activeElements.count, 2)
         if case .hashtag(let hashtag) = activeElements[0] { XCTAssertEqual(hashtag, "some") }
@@ -191,16 +175,6 @@ class ActiveTypeTests: XCTestCase {
          #some #hashtag #some #hashtag
         """
         XCTAssertEqual(activeElements.count, 24)
-
-        label.text = """
-         #some #hashtag #some #hashtag #some #hashtag #some #hashtag #some #hashtag
-         #some #hashtag #some #hashtag #some #hashtag #some #hashtag #some #hashtag
-         #some #hashtag #some #hashtag #some #hashtag #some #hashtag #some #hashtag
-         #some #hashtag #some #hashtag #some #hashtag #some #hashtag #some #hashtag
-         #some #hashtag #some #hashtag #some #hashtag #some #hashtag #some #hashtag
-         #some #hashtag #some #hashtag
-        """
-        XCTAssertEqual(activeElements.count, 30)
 
         label.text = "#somehashtag"
         XCTAssertEqual(activeElements.count, 1)

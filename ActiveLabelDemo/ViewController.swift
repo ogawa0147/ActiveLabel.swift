@@ -60,7 +60,6 @@ class ViewController: UIViewController {
         let customType2 = ActiveType.custom(pattern: "\\sit\\b") //Looks for "it"
         let customType3 = ActiveType.custom(pattern: "\\ssupports\\b") //Looks for "supports"
 
-//        label.enabledTypes = [.hashtag, .hashtag2, .mention, .url]
         label.enabledTypes = [.hashtag, .mention, .url]
         label.enabledTypes.append(customType)
         label.enabledTypes.append(customType2)
@@ -68,7 +67,8 @@ class ViewController: UIViewController {
 
         label.urlMaximumLength = 31
 
-        label.availableHashtags = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]
+        label.hashtagMaximumLength = 85
+        label.enabledHashtags = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"]
 
         label.customize { label in
             label.text = text

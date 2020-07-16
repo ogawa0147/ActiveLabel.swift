@@ -83,7 +83,7 @@ struct ActiveBuilder {
         return elements
     }
 
-    static func createHashtagElements(from text: String, for type: ActiveType, hashtags: [String], range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
+    static func createHashtagElements(from text: String, for type: ActiveType, hashtags: [String], maximumLength: Int?, range: NSRange, filterPredicate: ActiveFilterPredicate?) -> [ElementTuple] {
         let matches = RegexParser.getElements(from: text, with: type.pattern, range: range)
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
@@ -96,6 +96,10 @@ struct ActiveBuilder {
             }
 
             if word.hasPrefix("https") || word.hasPrefix("http") {
+                continue
+            }
+
+            if let maxLength = maximumLength, word.count > maxLength {
                 continue
             }
 
