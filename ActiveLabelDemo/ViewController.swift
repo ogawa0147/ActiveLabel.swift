@@ -30,8 +30,8 @@ class ViewController: UIViewController {
 //        let text = """
 //        This is a post with #multiple #hashtags and a @userhandle.
 //        Links are also supported like this one: http://optonaut.co. Now it also supports custom patterns -> are
-//        
-//        
+//
+//
 //        Let's trim a long link: \nhttps://twitter.com/twicket_app/status/649678392372121601
 //        """
 
@@ -45,16 +45,14 @@ class ViewController: UIViewController {
         .#somehashtag #. #somehashtag.
         #some&#mention
         #あいうえお
-        #あいうえお#あいうえお
+        #さしすせそ#かきくけこ
         
         #@ #% #* #+ #~ #! ## #$ #^ #& #( #) #{ #} #[ #] #; #' #: #" #? #/
         
         #1 #2 #3 #4 #5 #6 #7 #8 #9 #10 #11 #12 #13 #14 #15 #16 #17 #18 #19 #20 #21 #22 #23 #24 #25 #26 #27 #28 #29 #30 #31 #32 #33 #34 #35 #36 #37 #38 #39 #40 #41 #42 #43
-
-        @mention @mention
-
-        https://www.google.com
-
+        
+        @mention @mention2
+        https://www.google.com.com
         """
 
         let customType = ActiveType.custom(pattern: "\\sare\\b") //Looks for "are"
@@ -62,7 +60,7 @@ class ViewController: UIViewController {
         let customType3 = ActiveType.custom(pattern: "\\ssupports\\b") //Looks for "supports"
 
 //        label.enabledTypes = [.hashtag, .hashtag2, .mention, .url]
-        label.enabledTypes = [.hashtag2, .url]
+        label.enabledTypes = [.hashtag, .mention, .url]
         label.enabledTypes.append(customType)
         label.enabledTypes.append(customType2)
         label.enabledTypes.append(customType3)

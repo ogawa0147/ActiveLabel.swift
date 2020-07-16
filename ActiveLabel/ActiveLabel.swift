@@ -93,8 +93,6 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
         switch type {
         case .hashtag:
             hashtagTapHandler = nil
-        case .hashtag2:
-            hashtagTapHandler = nil
         case .mention:
             mentionTapHandler = nil
         case .url:
@@ -215,7 +213,6 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
             switch selectedElement.element {
             case .mention(let userHandle): didTapMention(userHandle)
             case .hashtag(let hashtag): didTapHashtag(hashtag)
-            case .hashtag2(let hashtag): didTapHashtag(hashtag)
             case .url(let originalURL, _): didTapStringURL(originalURL)
             case .custom(let element): didTap(element, for: selectedElement.type)
             }
@@ -231,7 +228,7 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
             selectedElement = nil
         case .stationary:
             break
-        @unknown default:
+        default:
             break
         }
         
@@ -324,7 +321,6 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
             switch type {
             case .mention: attributes[NSAttributedString.Key.foregroundColor] = mentionColor
             case .hashtag: attributes[NSAttributedString.Key.foregroundColor] = hashtagColor
-            case .hashtag2: attributes[NSAttributedString.Key.foregroundColor] = hashtagColor
             case .url: attributes[NSAttributedString.Key.foregroundColor] = URLColor
             case .custom: attributes[NSAttributedString.Key.foregroundColor] = customColor[type] ?? defaultCustomColor
             }
@@ -362,17 +358,17 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
         for type in enabledTypes where type != .url {
             var filter: ((String) -> Bool)? = nil
             switch type {
-            case .mention, .hashtag:
+            case .mention:
                 filter = mentionFilterPredicate
                 let elements = ActiveBuilder.createElementsIgnoringFirstCharacter(from: textString, for: type, range: textRange, filterPredicate: filter)
                 activeElements[type] = elements
-            case .hashtag2:
+            case .hashtag:
                 if let availableHashtags = availableHashtags, !availableHashtags.isEmpty {
                     filter = hashtagFilterPredicate
                     let elements = ActiveBuilder.createHashtagElements(from: textString, for: type, hashtags: availableHashtags, range: textRange, filterPredicate: filter)
                     activeElements[type] = elements
                 } else {
-                    filter = mentionFilterPredicate
+                    filter = hashtagFilterPredicate
                     let elements = ActiveBuilder.createElementsIgnoringFirstCharacter(from: textString, for: type, range: textRange, filterPredicate: filter)
                     activeElements[type] = elements
                 }
@@ -420,7 +416,6 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
             switch type {
             case .mention: selectedColor = mentionSelectedColor ?? mentionColor
             case .hashtag: selectedColor = hashtagSelectedColor ?? hashtagColor
-            case .hashtag2: selectedColor = hashtagSelectedColor ?? hashtagColor
             case .url: selectedColor = URLSelectedColor ?? URLColor
             case .custom:
                 let possibleSelectedColor = customSelectedColor[selectedElement.type] ?? customColor[selectedElement.type]
@@ -432,7 +427,6 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
             switch type {
             case .mention: unselectedColor = mentionColor
             case .hashtag: unselectedColor = hashtagColor
-            case .hashtag2: unselectedColor = hashtagColor
             case .url: unselectedColor = URLColor
             case .custom: unselectedColor = customColor[selectedElement.type] ?? defaultCustomColor
             }

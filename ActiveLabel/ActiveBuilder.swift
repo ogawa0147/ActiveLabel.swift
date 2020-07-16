@@ -111,9 +111,10 @@ struct ActiveBuilder {
                             continue
                         }
                     }
-                    if !words.isEmpty, let text = words.last {
-                        let element = ActiveElement.create(with: type, text: text)
-                        elements.append((match.range, element, type))
+                    if !words.isEmpty, let last = words.last {
+                        let newRange = (word as NSString).range(of: last)
+                        let element = ActiveElement.create(with: type, text: last)
+                        elements.append((newRange, element, type))
                     }
                 }
             }
