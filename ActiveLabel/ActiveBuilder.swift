@@ -104,10 +104,6 @@ struct ActiveBuilder {
                     let hashtag = hashtags[index]
                     let element = ActiveElement.create(with: type, text: hashtag)
                     elements.append((match.range, element, type))
-                    if let hashtag = hashtags.filter({ $0.hasPrefix(word) }).first {
-                        let element = ActiveElement.create(with: type, text: hashtag)
-                        elements.append((match.range, element, type))
-                    }
                 } else {
                     var string: String = ""
                     var words: [String] = []
