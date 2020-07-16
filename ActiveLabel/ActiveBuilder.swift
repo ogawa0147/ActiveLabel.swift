@@ -101,8 +101,8 @@ struct ActiveBuilder {
 
             if filterPredicate?(word) ?? true {
                 if let index = hashtags.firstIndex(of: word) {
-                    let hashtag = hashtags[index]
-                    let element = ActiveElement.create(with: type, text: hashtag)
+                    let text = hashtags[index]
+                    let element = ActiveElement.create(with: type, text: text)
                     elements.append((match.range, element, type))
                 } else {
                     var string: String = ""
@@ -115,10 +115,10 @@ struct ActiveBuilder {
                             continue
                         }
                     }
-                    if !words.isEmpty, let last = words.last {
-                        let newRange = (word as NSString).range(of: last)
-                        let element = ActiveElement.create(with: type, text: last)
-                        elements.append((newRange, element, type))
+                    if !words.isEmpty, let word = words.last, let index = hashtags.firstIndex(of: word) {
+                        let text = hashtags[index]
+                        let element = ActiveElement.create(with: type, text: text)
+                        elements.append((match.range, element, type))
                     }
                 }
             }
