@@ -25,7 +25,8 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
     
     open var urlMaximumLength: Int?
     
-    open var availableHashtags: [String]?
+    open var hashtagMaximumLength: Int?
+    open var enabledHashtags: [String]?
     
     open var configureLinkAttribute: ConfigureLinkAttribute?
     
@@ -363,9 +364,9 @@ typealias ElementTuple = (range: NSRange, element: ActiveElement, type: ActiveTy
                 let elements = ActiveBuilder.createElementsIgnoringFirstCharacter(from: textString, for: type, range: textRange, filterPredicate: filter)
                 activeElements[type] = elements
             case .hashtag:
-                if let availableHashtags = availableHashtags, !availableHashtags.isEmpty {
+                if let enabledHashtags = enabledHashtags, !enabledHashtags.isEmpty {
                     filter = hashtagFilterPredicate
-                    let elements = ActiveBuilder.createHashtagElements(from: textString, for: type, hashtags: availableHashtags, range: textRange, filterPredicate: filter)
+                    let elements = ActiveBuilder.createHashtagElements(from: textString, for: type, hashtags: enabledHashtags, maximumLength: hashtagMaximumLength, range: textRange, filterPredicate: filter)
                     activeElements[type] = elements
                 } else {
                     filter = hashtagFilterPredicate
