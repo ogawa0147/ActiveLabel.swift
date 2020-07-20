@@ -71,7 +71,7 @@ struct ActiveBuilder {
                 word.remove(at: word.startIndex)
             }
 
-            if word.hasPrefix("https") || word.hasPrefix("http") {
+            if word.isURL() {
                 continue
             }
 
@@ -92,14 +92,24 @@ struct ActiveBuilder {
         let nsstring = text as NSString
         var elements: [ElementTuple] = []
 
-        for match in matches where match.range.length > 1 {
+        for (key, match) in matches.enumerated() where match.range.length > 1 {
             var word = nsstring.substring(with: match.range).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+
+            let urlElements = RegexParser.getElements(from: text, with: ActiveType.url.pattern, range: range).map {
+                nsstring.substring(with: $0.range).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            }
+            .map { $0.contains(word) }
+            .filter { $0 }
+
+            if urlElements.indices.contains(key) {
+                continue
+            }
 
             if word.hasPrefix("#") {
                 word.remove(at: word.startIndex)
             }
 
-            if word.hasPrefix("https") || word.hasPrefix("http") {
+            if word.isURL() {
                 continue
             }
 
@@ -136,5 +146,11 @@ struct ActiveBuilder {
         }
 
         return elements
+    }
+}
+
+private extension String {
+    func isURL() -> Bool {
+        return hasPrefix("https") || hasPrefix("http")
     }
 }
