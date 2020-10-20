@@ -15,7 +15,7 @@ public func ==(a: ActiveElement, b: ActiveElement) -> Bool {
     switch (a, b) {
     case (.mention(let a), .mention(let b)) where a == b: return true
     case (.hashtag(let a), .hashtag(let b)) where a == b: return true
-    case (.url(let a), .url(let b)) where a == b: return true
+    case (.url(let a, _), .url(let b, _)) where a == b: return true
     case (.custom(let a), .custom(let b)) where a == b: return true
     default: return false
     }
